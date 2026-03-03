@@ -41,4 +41,5 @@ yarn-error.log*
 next-env.d.ts
 
 test-upstash.ts
+clear-vectors.ts
 package-lock.json

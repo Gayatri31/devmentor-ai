@@ -1,6 +1,4 @@
 import { Index } from "@upstash/vector";
-import { openai } from "@ai-sdk/openai";
-import { embedMany, embed } from "ai";
 
 // Upstash Vector client
 const index = new Index({
@@ -16,9 +14,9 @@ export function chunkText(text: string, chuckSize = 500): string[] {
     const chunks: string[] = [];
     let current = "";
 
-    for(const sentence of sentences) {
-        if((current + sentence).length > chuckSize){
-            if(current) {
+    for (const sentence of sentences) {
+        if ((current + sentence).length > chuckSize) {
+            if (current) {
                 chunks.push(current.trim())
             }
             current = sentence;
@@ -27,11 +25,43 @@ export function chunkText(text: string, chuckSize = 500): string[] {
         }
     }
 
-    if(current) {
+    if (current) {
         chunks.push(current.trim())
     }
     return chunks.filter((c) => c.length > 50);
 }
+
+// Ollama embeddings — local, fast, free
+// nomic-embed-text outputs 768 dimensions
+async function getEmbedding(text: string): Promise<number[]> {
+  const response = await fetch(
+    `${process.env.OLLAMA_BASE_URL?.replace("/v1", "") || "http://localhost:11434"}/api/embeddings`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "nomic-embed-text",
+        prompt: text,
+      }),
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(`Ollama embedding failed: ${response.statusText}`);
+  }
+
+  const data = await response.json();
+    
+  return data.embedding;
+}
+
+async function getEmbeddings(texts: string[]): Promise<number[][]> {
+  const embeddings = await Promise.all(
+    texts.map((text) => getEmbedding(text))
+  );
+  return embeddings;
+}
+
 
 // Store resume in vector DB
 // userId makes it personal — each user has their own vectors
@@ -40,10 +70,7 @@ export async function storeResume(resumeText: string, userId: string): Promise<v
 
     // Convert each chunk to a vector (array of numbers)
     // This is what makes semantic search possible
-    const { embeddings } = await embedMany({
-        model: openai.embedding("text-embedding-3-small"),
-        values: chunks
-    })
+    const embeddings = await getEmbeddings(chunks);
 
     // Delete old resume vectors first — solves stale data problem
     await index.delete(
@@ -56,7 +83,7 @@ export async function storeResume(resumeText: string, userId: string): Promise<v
         vector: embeddings[i],
         metadata: {
             text: chunk,
-            type: "resume",
+            docType: "resume",
             userId,
             uploadedAt: new Date().toISOString()
         }
@@ -68,24 +95,22 @@ export async function storeResume(resumeText: string, userId: string): Promise<v
 // Fetch relevant resume chunks for a query
 // Not the whole resume — just the most relevant parts
 export async function retrieveResumeContext(
-    query: string,
-    userId: string,
-    topK = 5
+  query: string,
+  userId: string,
+  topK = 5
 ): Promise<string> {
+  const embedding = await getEmbedding(query);
 
-    const { embedding } = await embed({
-        model: openai.embedding("text-embedding-3-small"),
-        value: query
-    });
+  const results = await index.query({
+    vector: embedding,
+    topK,
+    includeMetadata: true,
+    filter: `docType = 'resume' and userId = '${userId}'`,
+  });
 
-    const results = await index.query({
-        vector: embedding,
-        topK,
-        includeMetadata: true,
-        filter: `type = resume AND userId = '${userId}'`,
-    });
-
-    // Return just the text — agent reads this as context
-    return results.map((r) => r.metadata?.text as string).filter(Boolean).join("\n\n");
+  return results
+    .map((r) => r.metadata?.text as string)
+    .filter(Boolean)
+    .join("\n\n");
 }
 

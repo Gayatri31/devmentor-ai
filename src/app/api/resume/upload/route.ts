@@ -3,7 +3,6 @@ import { parseFile } from "@/lib/parse-file";
 import { storeResume } from "@/lib/rag";
 
 export async function POST(req: NextRequest) {
-
     try {
         // Get the uploaded file from form data
         const formData = await req.formData();

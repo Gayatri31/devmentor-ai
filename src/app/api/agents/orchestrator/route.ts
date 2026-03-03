@@ -1,9 +1,12 @@
+import { streamText, convertToModelMessages, UIMessage } from "ai";
 import { llm } from "@/lib/llm";
 import { NextRequest } from "next/server";
-import { streamText } from "ai"
 
 export async function POST(req: NextRequest) {
-    const {messages} = await req.json();
+    const { messages }: { messages: UIMessage[] } = await req.json();
+
+    const modelMessages = await convertToModelMessages(messages);
+
     const result = streamText({
         model: llm,
         system: `You are an intelligent orchestrator for DevMentor AI — 
@@ -25,8 +28,8 @@ export async function POST(req: NextRequest) {
     "what is system design?"        → rag
     "grill me on React hooks"       → interview
     "is my CV good for this role?"  → resume`,
-        messages
+        messages: modelMessages,
     });
 
-    return result.toTextStreamResponse();
+    return result.toUIMessageStreamResponse();
 }
