@@ -1,3 +1,4 @@
+"use client";
 import InterviewChat from "@/components/agents/InterviewChat";
 
 export default function InterviewPage() {

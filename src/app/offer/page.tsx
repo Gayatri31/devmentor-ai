@@ -1,3 +1,4 @@
+"use client";
 import OfferChat from "@/components/agents/OfferChat";
 
 export default function OfferPage() {

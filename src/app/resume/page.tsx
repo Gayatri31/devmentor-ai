@@ -1,3 +1,4 @@
+"use client";
 import ResumeUpload from "@/components/agents/ResumeUpload";
 import ResumeChat from "@/components/agents/ResumeChat";
 
