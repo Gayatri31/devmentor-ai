@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
-import Navbar from "@/components/Navbar";
+import ConditionalNavbar from "@/components/ConditionalNavbar";
 import "./globals.css";
 
 const geist = Geist({ subsets: ["latin"] });
@@ -17,10 +17,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body
-        className={`${geist.className} min-h-screen bg-zinc-950 antialiased`}
-      >
-        <Navbar />
+      <body className={`${geist.className} min-h-screen bg-zinc-950 antialiased`}>
+        <ConditionalNavbar />
         {children}
       </body>
     </html>
