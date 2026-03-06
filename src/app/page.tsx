@@ -1,5 +1,8 @@
 import Link from "next/link";
 
+const CLERK_SIGN_IN = "https://absolute-ferret-20.accounts.dev/sign-in";
+const CLERK_SIGN_UP = "https://absolute-ferret-20.accounts.dev/sign-up";
+
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-zinc-950 flex flex-col">
@@ -14,7 +17,7 @@ export default function LandingPage() {
             </span>
           </div>
           <Link
-            href="/sign-in"
+            href={CLERK_SIGN_IN}
             className="rounded-xl bg-white px-4 py-2 text-xs font-semibold text-zinc-950 transition hover:bg-zinc-200"
           >
             Get Started
@@ -44,7 +47,7 @@ export default function LandingPage() {
 
         <div className="mt-10 flex items-center gap-4">
           <Link
-            href="/sign-in"
+            href={CLERK_SIGN_UP}
             className="rounded-xl bg-white px-6 py-3 text-sm font-semibold text-zinc-950 transition hover:bg-zinc-200"
           >
             Start for free
@@ -61,7 +64,6 @@ export default function LandingPage() {
       {/* Features */}
       <div id="features" className="px-6 py-24 border-t border-zinc-800">
         <div className="mx-auto max-w-5xl">
-
           <h2 className="text-2xl font-bold text-white text-center mb-4">
             Everything you need to land your next role abroad
           </h2>
@@ -71,8 +73,6 @@ export default function LandingPage() {
           </p>
 
           <div className="grid gap-6 md:grid-cols-3">
-
-            {/* Feature 1 */}
             <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-6">
               <div className="text-3xl mb-4">📄</div>
               <h3 className="text-base font-semibold text-white mb-3">
@@ -86,10 +86,7 @@ export default function LandingPage() {
                   "Receive a personalised learning roadmap",
                   "Match score out of 10",
                 ].map((point) => (
-                  <li
-                    key={point}
-                    className="flex items-start gap-2 text-xs text-zinc-400"
-                  >
+                  <li key={point} className="flex items-start gap-2 text-xs text-zinc-400">
                     <span className="text-emerald-500 mt-0.5">✓</span>
                     {point}
                   </li>
@@ -97,7 +94,6 @@ export default function LandingPage() {
               </ul>
             </div>
 
-            {/* Feature 2 */}
             <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-6">
               <div className="text-3xl mb-4">💼</div>
               <h3 className="text-base font-semibold text-white mb-3">
@@ -111,10 +107,7 @@ export default function LandingPage() {
                   "Hidden clauses and bond detection",
                   "Accept / Negotiate / Decline verdict",
                 ].map((point) => (
-                  <li
-                    key={point}
-                    className="flex items-start gap-2 text-xs text-zinc-400"
-                  >
+                  <li key={point} className="flex items-start gap-2 text-xs text-zinc-400">
                     <span className="text-emerald-500 mt-0.5">✓</span>
                     {point}
                   </li>
@@ -122,7 +115,6 @@ export default function LandingPage() {
               </ul>
             </div>
 
-            {/* Feature 3 */}
             <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-6">
               <div className="text-3xl mb-4">🎯</div>
               <h3 className="text-base font-semibold text-white mb-3">
@@ -136,17 +128,13 @@ export default function LandingPage() {
                   "Feedback on every answer",
                   "Final performance score and report",
                 ].map((point) => (
-                  <li
-                    key={point}
-                    className="flex items-start gap-2 text-xs text-zinc-400"
-                  >
+                  <li key={point} className="flex items-start gap-2 text-xs text-zinc-400">
                     <span className="text-emerald-500 mt-0.5">✓</span>
                     {point}
                   </li>
                 ))}
               </ul>
             </div>
-
           </div>
         </div>
       </div>
@@ -162,20 +150,17 @@ export default function LandingPage() {
               {
                 step: "01",
                 title: "Upload your resume",
-                description:
-                  "Upload your PDF or DOCX resume once. DevMentor AI stores it securely and uses it to personalise every response.",
+                description: "Upload your PDF or DOCX resume once. DevMentor AI stores it securely and uses it to personalise every response.",
               },
               {
                 step: "02",
                 title: "Choose your tool",
-                description:
-                  "Analyse gaps for a specific role, evaluate a job offer, or practice with a mock interview — all in one place.",
+                description: "Analyse gaps for a specific role, evaluate a job offer, or practice with a mock interview — all in one place.",
               },
               {
                 step: "03",
                 title: "Get personalised advice",
-                description:
-                  "Every response is grounded in your actual resume — not generic advice. Real gaps, real salary data, real feedback.",
+                description: "Every response is grounded in your actual resume — not generic advice. Real gaps, real salary data, real feedback.",
               },
             ].map((item) => (
               <div key={item.step} className="text-center">
@@ -205,7 +190,7 @@ export default function LandingPage() {
             Built by a developer, for developers.
           </p>
           <Link
-            href="/sign-in"
+            href={CLERK_SIGN_UP}
             className="inline-flex rounded-xl bg-white px-8 py-3 text-sm font-semibold text-zinc-950 transition hover:bg-zinc-200"
           >
             Get started for free →
@@ -218,9 +203,7 @@ export default function LandingPage() {
         <div className="mx-auto max-w-5xl flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span>✨</span>
-            <span className="text-xs font-bold text-white">
-              DevMentor AI
-            </span>
+            <span className="text-xs font-bold text-white">DevMentor AI</span>
           </div>
           <p className="text-xs text-zinc-600">
             Open source · Built with Next.js + Vercel AI SDK

@@ -1,14 +1,8 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
-// Public routes — no auth required
-const isPublicRoute = createRouteMatcher([
-  "/",           // landing page
-  "/sign-in(.*)",
-  "/sign-up(.*)",
-]);
+const isPublicRoute = createRouteMatcher(["/"]);
 
 export default clerkMiddleware(async (auth, request) => {
-  // If not a public route — require auth
   if (!isPublicRoute(request)) {
     await auth.protect();
   }
