@@ -3,13 +3,20 @@
 import { usePathname } from "next/navigation";
 import Navbar from "./Navbar";
 
-// Pages that should NOT show the app navbar
+// Exact pages that should NOT show the app navbar
 const HIDE_NAVBAR_ON = ["/", "/sign-in", "/sign-up"];
 
 export default function ConditionalNavbar() {
-  const pathname = usePathname();
+    const pathname = usePathname();
 
-  if (HIDE_NAVBAR_ON.includes(pathname)) return null;
+    // Use exact match for "/" 
+    // Use startsWith for /sign-in and /sign-up only
+    const isLanding = pathname === "/";
+    const isAuthPage =
+        pathname.startsWith("/sign-in") ||
+        pathname.startsWith("/sign-up");
 
-  return <Navbar />;
+    if (isLanding || isAuthPage) return null;
+
+    return <Navbar />;
 }

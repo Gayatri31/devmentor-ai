@@ -4,8 +4,12 @@ import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import { UIMessage } from "@ai-sdk/react";
 import { useState } from "react";
+import { useUser } from "@clerk/nextjs";
+
 
 export default function ResumeChat() {
+     const { user } = useUser();
+
   const [jobDescription, setJobDescription] = useState("");
   const [showJD, setShowJD] = useState(true);
   const [inputValue, setInputValue] = useState("");
@@ -14,7 +18,7 @@ export default function ResumeChat() {
     transport: new DefaultChatTransport({
       api: "/api/agents/resume",
       body: {
-        userId: "dev-user-1",
+        userId: user?.id || "",
         jobDescription,
       },
     }),
@@ -31,7 +35,7 @@ function handleSubmit(e: React.FormEvent) {
       { text: inputValue },
       {
         body: {
-          userId: "dev-user-1",
+          userId: user?.id || "",
           jobDescription,
         },
       }

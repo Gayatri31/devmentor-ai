@@ -4,8 +4,10 @@ import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import { UIMessage } from "@ai-sdk/react";
 import { useState } from "react";
+import { useUser } from "@clerk/nextjs";
 
 export default function InterviewChat() {
+    const { user } = useUser();
     const [jobDescription, setJobDescription] = useState("");
     const [showJD, setShowJD] = useState(true);
     const [inputValue, setInputValue] = useState("");
@@ -30,7 +32,7 @@ export default function InterviewChat() {
             { text: "start" },
             {
                 body: {
-                    userId: "dev-user-1",
+                    userId: user?.id || "",
                     jobDescription,
                     isStart: true,  // ← the trigger you identified
                 },

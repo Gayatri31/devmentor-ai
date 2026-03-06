@@ -1,8 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { parseFile } from "@/lib/parse-file";
 import { storeResume } from "@/lib/rag";
+import { auth } from "@clerk/nextjs/server";
+
 
 export async function POST(req: NextRequest) {
+    const { userId } = await auth();
+
+    if (!userId) {
+        return NextResponse.json(
+            { error: "Unauthorised" },
+            { status: 401 }
+        );
+    }
     try {
         // Get the uploaded file from form data
         const formData = await req.formData();

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { UserButton } from "@clerk/nextjs";
 
 const NAV_LINKS = [
   { href: "/resume", label: "Resume Analyzer", icon: "📄" },
@@ -27,7 +28,7 @@ export default function Navbar() {
           </span>
         </Link>
 
-        {/* Links */}
+        {/* Links + UserButton */}
         <div className="flex items-center gap-1">
           {NAV_LINKS.map((link) => {
             const isActive = pathname === link.href;
@@ -46,6 +47,11 @@ export default function Navbar() {
               </Link>
             );
           })}
+
+          {/* Clerk user avatar + sign out */}
+          <div className="ml-3">
+            <UserButton afterSignOutUrl="/" />
+          </div>
         </div>
 
       </div>

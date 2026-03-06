@@ -2,9 +2,14 @@ import { streamText, convertToModelMessages, UIMessage } from "ai";
 import { llm } from "@/lib/llm";
 import { retrieveResumeContext } from "@/lib/rag";
 import { NextRequest } from "next/server";
+import { auth } from "@clerk/nextjs/server";
 
 export async function POST(request: NextRequest) {
-    const { messages, userId, offerText }: { messages: UIMessage[], userId: string, offerText?: string } = await request.json();
+    const { userId } = await auth();
+    if (!userId) {
+        return new Response("Unauthorised", { status: 401 });
+    }
+    const { messages, offerText }: { messages: UIMessage[], offerText?: string } = await request.json();
 
     // Get latest user message
     const latestMessage = messages[messages.length - 1];

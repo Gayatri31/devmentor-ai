@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { useUser } from "@clerk/nextjs";
 
 interface UploadState {
     status: "idle" | "uploading" | "success" | "error",
@@ -8,6 +9,8 @@ interface UploadState {
 }
 
 export default function ResumeUpload() {
+    const { user } = useUser();
+  
     const [dragOver, setDragOver] = useState(false);
     const [uploadState, setUploadState] = useState<UploadState>({
         status: "idle",

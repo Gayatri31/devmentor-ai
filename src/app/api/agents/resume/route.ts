@@ -2,15 +2,18 @@ import { streamText, convertToModelMessages, UIMessage } from "ai";
 import { llm } from "@/lib/llm";
 import { retrieveResumeContext } from "@/lib/rag";
 import { NextRequest } from "next/server";
+import { auth } from "@clerk/nextjs/server";
 
 export async function POST(req: NextRequest) {
+    const { userId } = await auth();
+    if (!userId) {
+        return new Response("Unauthorised", { status: 401 });
+    }
     const {
         messages,
-        userId,
         jobDescription,
     }: {
         messages: UIMessage[];
-        userId: string;
         jobDescription?: string; // ← optional — no crash if missing
     } = await req.json();
 
