@@ -10,49 +10,25 @@ export async function POST(req: NextRequest) {
         return new Response("Unauthorised", { status: 401 });
     }
     const userId = session.user.id;
-    const {
-        messages,
-        jobDescription,
-    }: {
-        messages: UIMessage[];
-        jobDescription?: string; // ← optional — no crash if missing
-    } = await req.json();
+    const { messages, jobDescription }: { messages: UIMessage[]; jobDescription?: string } = await req.json();
 
     const latestMessage = messages[messages.length - 1];
-    const query =
-        latestMessage?.parts?.find(
-            (p) => p.type === "text"
-        ) as { type: "text"; text: string } | undefined;
-
+    const query = latestMessage?.parts?.find((p) => p.type === "text") as { type: "text"; text: string } | undefined;
     const queryText = query?.text || "";
 
-    // Combine question + JD for richer RAG retrieval
-    // If JD missing — just use the question alone
     const ragQuery = jobDescription
         ? `${queryText} ${jobDescription}`.slice(0, 500)
         : queryText;
 
-    const resumeContext = await retrieveResumeContext(
-        ragQuery,
-        userId
-    );
+    const resumeContext = await retrieveResumeContext(ragQuery, userId);
 
-    // Build system prompt sections dynamically
-    // Each section degrades gracefully if data missing
     const resumeSection = resumeContext
-        ? `CANDIDATE RESUME CONTEXT:
-       ${resumeContext}`
-        : `RESUME STATUS: No resume uploaded yet.
-       Politely ask the user to upload their resume first.
-       Do not guess or fabricate their experience.`;
+        ? `CANDIDATE RESUME CONTEXT:\n       ${resumeContext}`
+        : `RESUME STATUS: No resume uploaded yet.\n       Politely ask the user to upload their resume first.\n       Do not guess or fabricate their experience.`;
 
     const jdSection = jobDescription
-        ? `JOB DESCRIPTION TO MATCH AGAINST:
-       ${jobDescription}`
-        : `JOB DESCRIPTION STATUS: Not provided yet.
-       Analyse the resume generally.
-       Focus on overall strengths and common senior frontend gaps.
-       Remind user that adding a JD will give more targeted analysis.`;
+        ? `JOB DESCRIPTION TO MATCH AGAINST:\n       ${jobDescription}`
+        : `JOB DESCRIPTION STATUS: Not provided yet.\n       Analyse the resume generally.\n       Focus on overall strengths and common senior frontend gaps.\n       Remind user that adding a JD will give more targeted analysis.`;
 
     const taskSection = jobDescription
         ? `YOUR TASKS WITH JD PROVIDED:
@@ -80,24 +56,35 @@ export async function POST(req: NextRequest) {
 
     const modelMessages = await convertToModelMessages(messages);
 
-    const result = streamText({
-        model: llm,
-        system: `You are an expert resume analyst specialising in
-    tech roles and international job markets.
+    try {
+        const result = streamText({
+            model: llm,
+            system: `You are an expert resume analyst specialising in
+                    tech roles and international job markets.
 
-    STRICT RULES — Always follow:
-    - Base every statement on evidence from resume or JD
-    - Never hallucinate skills or experiences
-    - Never give generic advice not grounded in provided data
-    - Be specific, honest, and actionable
+                    STRICT RULES — Always follow:
+                    - Base every statement on evidence from resume or JD
+                    - Never hallucinate skills or experiences
+                    - Never give generic advice not grounded in provided data
+                    - Be specific, honest, and actionable
 
-    ${resumeSection}
+                    ${resumeSection}
 
-    ${jdSection}
+                    ${jdSection}
 
-    ${taskSection}`,
-        messages: modelMessages,
-    });
+                    ${taskSection}`,
+            messages: modelMessages,
+        });
 
-    return result.toUIMessageStreamResponse();
+        return result.toUIMessageStreamResponse();
+    } catch (error: any) {
+        console.error("Resume agent error:", error);
+        if (error?.status === 429) {
+            return new Response(
+                "I'm receiving a lot of requests right now — please try again in a minute.",
+                { status: 429 }
+            );
+        }
+        return new Response("Something went wrong. Please try again.", { status: 500 });
+    }
 }

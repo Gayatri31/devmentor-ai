@@ -143,10 +143,10 @@ export async function POST(req: NextRequest) {
        - Never repeat a question already asked`;
 
     const modelMessages = await convertToModelMessages(messages);
-
-    const result = streamText({
-        model: llm,
-        system: `You are an expert technical interviewer
+    try {
+        const result = streamText({
+            model: llm,
+            system: `You are an expert technical interviewer
 							specialising in frontend and full-stack engineering roles.
 							You conduct realistic, professional interviews that
 							accurately assess a candidate's true skill level.
@@ -170,8 +170,18 @@ export async function POST(req: NextRequest) {
 							${evaluationRules}
 
 							${taskSection}`,
-        messages: modelMessages,
-    });
+            messages: modelMessages,
+        });
 
-    return result.toUIMessageStreamResponse();
+        return result.toUIMessageStreamResponse();
+    } catch (error: any) {
+        console.error("Offer agent error:", error);
+        if (error?.status === 429) {
+            return new Response(
+                "I'm receiving a lot of requests right now — please try again in a minute.",
+                { status: 429 }
+            );
+        }
+        return new Response("Something went wrong. Please try again.", { status: 500 });
+    }
 }

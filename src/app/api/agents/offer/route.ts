@@ -166,9 +166,10 @@ export async function POST(request: NextRequest) {
        - Be helpful and encouraging`;
 
     const modelMessages = await convertToModelMessages(messages);
-    const result = streamText({
-        model: llm,
-        system: `You are an expert career advisor specialising in
+    try {
+        const result = streamText({
+            model: llm,
+            system: `You are an expert career advisor specialising in
                 tech job offers, international relocation, and developer
                 career growth. You have deep knowledge of global tech
                 salary benchmarks, visa processes, and startup culture.
@@ -184,9 +185,17 @@ export async function POST(request: NextRequest) {
                 ${offerSection}
 
                 ${taskSection}`,
-        messages: modelMessages,
-    });
-
-    return result.toUIMessageStreamResponse();
-
+            messages: modelMessages,
+        });
+        return result.toUIMessageStreamResponse();
+    } catch (error: any) {
+        console.error("Offer agent error:", error);
+        if (error?.status === 429) {
+            return new Response(
+                "I'm receiving a lot of requests right now — please try again in a minute.",
+                { status: 429 }
+            );
+        }
+        return new Response("Something went wrong. Please try again.", { status: 500 });
+    }
 }
