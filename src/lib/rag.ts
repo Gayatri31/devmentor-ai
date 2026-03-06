@@ -82,10 +82,8 @@ export async function storeResume(
   resumeText: string,
   userId: string
 ): Promise<void> {
-  console.log("storeResume called for userId:", userId);
 
   const chunks = chunkText(resumeText);
-  console.log(`Chunked into ${chunks.length} pieces`);
 
   if (chunks.length === 0) {
     throw new Error("Resume text produced no chunks — check parsing");
@@ -93,8 +91,6 @@ export async function storeResume(
 
   // Batch embed all chunks in one API call
   const embeddings = await getEmbeddings(chunks);
-  console.log(`Generated ${embeddings.length} embeddings`);
-  console.log(`Embedding dimensions: ${embeddings[0]?.length}`);
 
   // Delete old vectors — prevents stale data after re-upload
   const oldIds = Array.from(
@@ -102,7 +98,6 @@ export async function storeResume(
     (_, i) => `resume-${userId}-${i}`
   );
   await index.delete(oldIds);
-  console.log("Deleted old vectors");
 
   // Build and upsert new vectors
   const vectors = chunks.map((chunk, i) => ({
@@ -118,7 +113,6 @@ export async function storeResume(
   }));
 
   await index.upsert(vectors);
-  console.log(`✅ Stored ${vectors.length} vectors for user ${userId}`);
 }
 
 // ─── Retrieve Resume Context ─────────────────────────────
@@ -148,7 +142,6 @@ export async function retrieveResumeContext(
       .filter(Boolean)
       .join("\n\n");
 
-    console.log(`Retrieved ${results.length} chunks for query`);
     return context;
 
   } catch (e: any) {
