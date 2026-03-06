@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { useUser } from "@clerk/nextjs";
+import { useSession } from "next-auth/react";
 
 interface ChatMessage {
     id: string;
@@ -29,7 +29,7 @@ export default function DashboardChat({
     onAgentChange,
     isLoadingChange,
 }: DashboardChatProps) {
-    const { user } = useUser();
+const { data: session } = useSession();
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [inputValue, setInputValue] = useState("");
     const [isLoading, setIsLoading] = useState(false);
@@ -115,7 +115,8 @@ export default function DashboardChat({
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     messages: [...messages, newUserMessage],
-                    userId: user?.id || "",
+                    userId: session?.user?.id || ""
+
                 }),
             });
 

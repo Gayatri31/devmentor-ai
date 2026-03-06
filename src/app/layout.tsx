@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
-import { ClerkProvider } from "@clerk/nextjs";
+import { SessionProvider } from "next-auth/react";
 import ConditionalNavbar from "@/components/ConditionalNavbar";
 import "./globals.css";
 
@@ -17,13 +17,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ClerkProvider>
-      <html lang="en">
-        <body className={`${geist.className} min-h-screen bg-zinc-950 antialiased`}>
+    <html lang="en">
+      <body className={`${geist.className} min-h-screen bg-zinc-950 antialiased`}>
+        <SessionProvider>
           <ConditionalNavbar />
           {children}
-        </body>
-      </html>
-    </ClerkProvider>
+        </SessionProvider>
+      </body>
+    </html>
   );
 }

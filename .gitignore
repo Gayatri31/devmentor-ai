@@ -45,3 +45,6 @@ clear-vectors.ts
 test-voyage.ts
 test-openai.ts
 package-lock.json
+
+# clerk configuration (can include secrets)
+/.clerk/

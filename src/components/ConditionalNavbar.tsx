@@ -6,7 +6,8 @@ import Navbar from "./Navbar";
 export default function ConditionalNavbar() {
   const pathname = usePathname();
 
-  if (pathname === "/") return null;
+  const hideOn = ["/", "/login"];
+  if (hideOn.includes(pathname)) return null;
 
   return <Navbar />;
 }

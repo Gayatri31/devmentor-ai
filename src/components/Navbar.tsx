@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { UserButton } from "@clerk/nextjs";
+import { signOut } from "next-auth/react";
 
 const NAV_LINKS = [
   { href: "/resume", label: "Resume Analyzer", icon: "📄" },
@@ -17,7 +17,6 @@ export default function Navbar() {
     <nav className="border-b border-zinc-800 bg-zinc-950 px-6 py-4">
       <div className="mx-auto flex max-w-6xl items-center justify-between">
 
-        {/* Logo */}
         <Link
           href="/dashboard"
           className="flex items-center gap-2 text-white hover:opacity-80 transition"
@@ -28,7 +27,6 @@ export default function Navbar() {
           </span>
         </Link>
 
-        {/* Links + UserButton */}
         <div className="flex items-center gap-1">
           {NAV_LINKS.map((link) => {
             const isActive = pathname === link.href;
@@ -48,10 +46,12 @@ export default function Navbar() {
             );
           })}
 
-          {/* Clerk user avatar + sign out */}
-          <div className="ml-3">
-            <UserButton afterSignOutUrl="/" />
-          </div>
+          <button
+            onClick={() => signOut({ callbackUrl: "/" })}
+            className="ml-3 rounded-lg px-3 py-2 text-xs font-medium text-zinc-400 transition hover:bg-zinc-800 hover:text-zinc-300"
+          >
+            Sign out
+          </button>
         </div>
 
       </div>

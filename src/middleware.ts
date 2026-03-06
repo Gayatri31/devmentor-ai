@@ -1,11 +1,23 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { auth } from "@/auth";
+import { NextResponse } from "next/server";
 
-const isPublicRoute = createRouteMatcher(["/"]);
+export default auth((req) => {
+  const isLoggedIn = !!req.auth;
+  const isPublicPage = req.nextUrl.pathname === "/";
+  const isLoginPage = req.nextUrl.pathname === "/login";
+  const isApiAuth = req.nextUrl.pathname.startsWith("/api/auth");
 
-export default clerkMiddleware(async (auth, request) => {
-  if (!isPublicRoute(request)) {
-    await auth.protect();
+  // Allow public pages and auth routes
+  if (isPublicPage || isLoginPage || isApiAuth) {
+    return NextResponse.next();
   }
+
+  // Redirect to login if not authenticated
+  if (!isLoggedIn) {
+    return NextResponse.redirect(new URL("/login", req.nextUrl));
+  }
+
+  return NextResponse.next();
 });
 
 export const config = {

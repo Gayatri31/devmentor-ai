@@ -1,8 +1,5 @@
 import Link from "next/link";
 
-const CLERK_SIGN_IN = "https://absolute-ferret-20.accounts.dev/sign-in";
-const CLERK_SIGN_UP = "https://absolute-ferret-20.accounts.dev/sign-up";
-
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-zinc-950 flex flex-col">
@@ -17,7 +14,7 @@ export default function LandingPage() {
             </span>
           </div>
           <Link
-            href={CLERK_SIGN_IN}
+            href="/login"
             className="rounded-xl bg-white px-4 py-2 text-xs font-semibold text-zinc-950 transition hover:bg-zinc-200"
           >
             Get Started
@@ -47,7 +44,7 @@ export default function LandingPage() {
 
         <div className="mt-10 flex items-center gap-4">
           <Link
-            href={CLERK_SIGN_UP}
+            href="/login"
             className="rounded-xl bg-white px-6 py-3 text-sm font-semibold text-zinc-950 transition hover:bg-zinc-200"
           >
             Start for free
@@ -75,9 +72,7 @@ export default function LandingPage() {
           <div className="grid gap-6 md:grid-cols-3">
             <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-6">
               <div className="text-3xl mb-4">📄</div>
-              <h3 className="text-base font-semibold text-white mb-3">
-                Resume Gap Analyzer
-              </h3>
+              <h3 className="text-base font-semibold text-white mb-3">Resume Gap Analyzer</h3>
               <ul className="space-y-2">
                 {[
                   "Upload your PDF or DOCX resume",
@@ -96,9 +91,7 @@ export default function LandingPage() {
 
             <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-6">
               <div className="text-3xl mb-4">💼</div>
-              <h3 className="text-base font-semibold text-white mb-3">
-                Offer Evaluator
-              </h3>
+              <h3 className="text-base font-semibold text-white mb-3">Offer Evaluator</h3>
               <ul className="space-y-2">
                 {[
                   "Paste your complete offer letter",
@@ -117,9 +110,7 @@ export default function LandingPage() {
 
             <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-6">
               <div className="text-3xl mb-4">🎯</div>
-              <h3 className="text-base font-semibold text-white mb-3">
-                Mock Interview
-              </h3>
+              <h3 className="text-base font-semibold text-white mb-3">Mock Interview</h3>
               <ul className="space-y-2">
                 {[
                   "AI interviews you based on your resume",
@@ -142,9 +133,7 @@ export default function LandingPage() {
       {/* How it works */}
       <div className="px-6 py-24 border-t border-zinc-800">
         <div className="mx-auto max-w-3xl text-center">
-          <h2 className="text-2xl font-bold text-white mb-16">
-            How it works
-          </h2>
+          <h2 className="text-2xl font-bold text-white mb-16">How it works</h2>
           <div className="grid gap-8 md:grid-cols-3">
             {[
               {
@@ -164,15 +153,9 @@ export default function LandingPage() {
               },
             ].map((item) => (
               <div key={item.step} className="text-center">
-                <div className="text-4xl font-bold text-zinc-800 mb-3">
-                  {item.step}
-                </div>
-                <h3 className="text-sm font-semibold text-white mb-2">
-                  {item.title}
-                </h3>
-                <p className="text-xs text-zinc-500 leading-relaxed">
-                  {item.description}
-                </p>
+                <div className="text-4xl font-bold text-zinc-800 mb-3">{item.step}</div>
+                <h3 className="text-sm font-semibold text-white mb-2">{item.title}</h3>
+                <p className="text-xs text-zinc-500 leading-relaxed">{item.description}</p>
               </div>
             ))}
           </div>
@@ -186,11 +169,10 @@ export default function LandingPage() {
             Ready to land your next role?
           </h2>
           <p className="text-zinc-400 text-sm mb-8">
-            Free to use. No credit card required.
-            Built by a developer, for developers.
+            Free to use. No credit card required. Built by a developer, for developers.
           </p>
           <Link
-            href={CLERK_SIGN_UP}
+            href="/login"
             className="inline-flex rounded-xl bg-white px-8 py-3 text-sm font-semibold text-zinc-950 transition hover:bg-zinc-200"
           >
             Get started for free →

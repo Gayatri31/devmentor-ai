@@ -1,6 +1,5 @@
 "use client";
 import { useState } from "react";
-import { useUser } from "@clerk/nextjs";
 
 interface UploadState {
     status: "idle" | "uploading" | "success" | "error",
@@ -9,8 +8,6 @@ interface UploadState {
 }
 
 export default function ResumeUpload() {
-    const { user } = useUser();
-  
     const [dragOver, setDragOver] = useState(false);
     const [uploadState, setUploadState] = useState<UploadState>({
         status: "idle",
@@ -118,8 +115,8 @@ export default function ResumeUpload() {
                 onDragLeave={() => setDragOver(false)}
                 onDrop={handleDrop}
                 className={`relative flex flex-col items-center justify-center rounded-xl border-2 border-dashed p-10 transition-all duration-200 ${dragOver
-                        ? "border-blue-500 bg-blue-500/10"
-                        : "border-zinc-700 hover:border-zinc-500"
+                    ? "border-blue-500 bg-blue-500/10"
+                    : "border-zinc-700 hover:border-zinc-500"
                     }`}
             >
                 {/* Upload Icon */}
@@ -160,10 +157,10 @@ export default function ResumeUpload() {
             {uploadState.message && (
                 <div
                     className={`mt-4 rounded-lg px-4 py-3 text-sm ${uploadState.status === "success"
-                            ? "bg-green-500/10 text-green-400"
-                            : uploadState.status === "error"
-                                ? "bg-red-500/10 text-red-400"
-                                : "bg-blue-500/10 text-blue-400"
+                        ? "bg-green-500/10 text-green-400"
+                        : uploadState.status === "error"
+                            ? "bg-red-500/10 text-red-400"
+                            : "bg-blue-500/10 text-blue-400"
                         }`}
                 >
                     {uploadState.status === "uploading" && (
