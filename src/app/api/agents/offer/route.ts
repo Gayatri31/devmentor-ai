@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
 
     const resumeContext = await retrieveResumeContext(
         ragQuery,
-        userId || "dev-user-1"
+        userId
     );
 
     // Source 2 — offer text injected directly

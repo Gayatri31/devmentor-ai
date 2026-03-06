@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
 
     const resumeContext = await retrieveResumeContext(
         ragQuery,
-        userId || "dev-user-1"
+        userId
     );
 
     // Build system prompt sections dynamically

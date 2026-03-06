@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
     // Fetch relevant resume context for general questions
     const resumeContext = await retrieveResumeContext(
         queryText,
-        userId || "dev-user-1"
+        userId
     );
 
     const resumeSection = resumeContext
