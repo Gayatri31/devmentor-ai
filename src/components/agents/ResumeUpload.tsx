@@ -151,6 +151,12 @@ export default function ResumeUpload() {
                         className="hidden"
                     />
                 </label>
+                {/* Privacy note */}
+                <p className="text-xs text-zinc-300 text-center mt-3">
+                    Resume text is stored securely per your account only.
+                    <br />
+                    Do not upload documents containing sensitive personal data.
+                </p>
             </div>
 
             {/* Status Message */}

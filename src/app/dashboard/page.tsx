@@ -15,7 +15,19 @@ export default function DashboardPage() {
   return (
     <main className="p-6">
       <div className="mx-auto max-w-5xl">
-
+        {/* POC Banner */}
+        <div className="bg-zinc-900 border-b border-zinc-800 text-zinc-500 text-xs text-center py-2 px-4 my-2">
+          ⚡ Open-source POC running on free tier APIs — responses may be slow during peak usage.
+          &nbsp;·&nbsp;
+          <a
+            href="https://github.com/Gayatri31/devmentor-ai"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-zinc-400 underline hover:text-zinc-300 transition"
+          >
+            View source on GitHub
+          </a>
+        </div>
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-white">

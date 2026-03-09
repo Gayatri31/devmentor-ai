@@ -59,22 +59,22 @@ DevMentor AI is a multi-agent AI platform that helps developers land internation
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                     Next.js Frontend                     │
+┌───────────────────────────────────────────────────────────┐
+│                     Next.js Frontend                      │
 │  Landing  │  Dashboard  │  Resume  │  Interview  │  Offer │
-└─────────────────────────┬───────────────────────────────┘
+└─────────────────────────┬─────────────────────────────────┘
                           │ HTTP + SSE Streaming
-┌─────────────────────────▼───────────────────────────────┐
-│                    Orchestrator Agent                    │
-│         Reads intent → routes to specialist agent        │
-└────┬──────────────┬──────────────┬──────────────┬───────┘
-     │              │              │              │
-┌────▼───┐    ┌─────▼──┐    ┌─────▼──┐    ┌─────▼──┐
-│ Resume │    │ Offer  │    │Interview│   │  RAG   │
-│ Agent  │    │ Agent  │    │ Agent  │    │ Agent  │
-└────┬───┘    └─────┬──┘    └─────┬──┘    └─────┬──┘
-     │              │              │              │
-     └──────────────┴──────┬───────┴──────────────┘
+┌─────────────────────────▼─────────────────────────────────┐
+│                    Orchestrator Agent                     │
+│         Reads intent → routes to specialist agent         │
+└────┬──────────────┬──────────────┬───────────────┬────────┘
+     │              │              │               │
+┌────▼───┐    ┌─────▼──┐     ┌─────▼────┐    ┌─────▼──┐
+│ Resume │    │ Offer  │     │Interview │    │  RAG   │
+│ Agent  │    │ Agent  │     │ Agent    │    │ Agent  │
+└────┬───┘    └─────┬──┘     └─────┬────┘    └─────┬──┘
+     │              │              │               │
+     └──────────────┴──────┬───────┴───────────────┘
                            │
               ┌────────────▼────────────┐
               │       lib/rag.ts        │
@@ -286,7 +286,7 @@ All agent routes return: `text/event-stream` (SSE streaming)
 
 ## Author
 
-Built by **Gayatri** — Senior Frontend Engineer targeting international roles.
+Built by **Gayatri** — Senior Frontend Engineer.
 
 - Live demo: [devmentor-ai-phi.vercel.app](https://devmentor-ai-phi.vercel.app)
 - GitHub: [github.com/Gayatri31/devmentor-ai](https://github.com/Gayatri31/devmentor-ai)

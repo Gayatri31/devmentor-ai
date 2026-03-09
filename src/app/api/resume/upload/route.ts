@@ -52,8 +52,6 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        // ── userId comes from Clerk above ─────────────────
-        // ── DO NOT redeclare it here      ─────────────────
         await storeResume(resumeText, userId);
 
         return NextResponse.json({
