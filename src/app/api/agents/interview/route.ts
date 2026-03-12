@@ -3,6 +3,7 @@ import { llm } from "@/lib/llm";
 import { retrieveResumeContext } from "@/lib/rag";
 import { NextRequest } from "next/server";
 import { auth } from "@/auth";
+import { getGapAnalysis } from "@/lib/redis";
 
 export async function POST(req: NextRequest) {
     const session = await auth();
@@ -28,10 +29,11 @@ export async function POST(req: NextRequest) {
         ? `technical skills experience ${jobDescription}`.slice(0, 500)
         : `technical skills experience ${queryText}`.slice(0, 500);
 
-    const resumeContext = await retrieveResumeContext(
-        ragQuery,
-        userId
-    );
+    // Fetch both resume context AND gap analysis in parallel
+    const [resumeContext, gapAnalysis] = await Promise.all([
+        retrieveResumeContext(ragQuery, userId),
+        getGapAnalysis(userId),
+    ]);
 
     //Build resume section
     const resumeSection = resumeContext ? `CANDIDATE RESUME CONTEXT ${resumeContext}` : `RESUME: No resume uploaded. Ask candidate to upload resume first. Do not fabricate any experience.`;
@@ -40,6 +42,21 @@ export async function POST(req: NextRequest) {
        to focus interview questions on.` : `TARGET ROLE: Not provided.
        Conduct a general senior frontend
        engineering interview based on resume.`;
+
+    // ← This is the agent-to-agent communication
+    const gapSection = gapAnalysis
+        ? `RESUME GAP ANALYSIS (from Resume Agent):
+            ${gapAnalysis}
+            CRITICAL INSTRUCTIONS BASED ON GAP ANALYSIS:
+            - Spend 60% of technical questions on the GAPS listed above
+            - These are the candidate's weak areas — probe them thoroughly
+            - If a gap is confirmed weak during interview → note it in closing feedback
+            - For STRENGTHS listed → start with these for warm-up questions
+            - Reference the gap analysis in your closing summary`
+        : `GAP ANALYSIS: Not available yet.
+            The candidate has not run a resume gap analysis.
+            Conduct interview based on resume context only.
+            Suggest they use the Resume Analyzer after the interview.`;
 
     // Build conversation history summary
     // This is how agent tracks STATE
@@ -147,38 +164,32 @@ export async function POST(req: NextRequest) {
         const result = streamText({
             model: llm,
             system: `You are an expert technical interviewer
-							specialising in frontend and full-stack engineering roles.
-							You conduct realistic, professional interviews that
-							accurately assess a candidate's true skill level.
-
-							CORE RULES:
-							- Base ALL questions on resume context and JD
-							- Never ask about technologies not in resume or JD
-							- Be professional but warm — reduce candidate anxiety
-							- Adapt difficulty based on answer quality
-							- Never reveal answers during the interview
-							- Be honest in evaluation — candidate growth depends on it
-
-							${resumeSection}
-
-							${jdSection}
-
-							${conversationHistory}
-
-							${interviewPhases}
-
-							${evaluationRules}
-
-							${taskSection}`,
+                    specialising in frontend and full-stack engineering roles.
+                    You conduct realistic, professional interviews that
+                    accurately assess a candidate's true skill level.
+                    CORE RULES:
+                    - Base ALL questions on resume context and JD
+                    - Never ask about technologies not in resume or JD
+                    - Be professional but warm — reduce candidate anxiety
+                    - Adapt difficulty based on answer quality
+                    - Never reveal answers during the interview
+                    - Be honest in evaluation — candidate growth depends on it
+                    ${resumeSection}
+                    ${jdSection}
+                    ${gapSection}
+                    ${conversationHistory}
+                    ${interviewPhases}
+                    ${evaluationRules}
+                    ${taskSection}`,
             messages: modelMessages,
         });
 
         return result.toUIMessageStreamResponse();
     } catch (error: any) {
-        console.error("Offer agent error:", error);
+        console.error("Interview agent error:", error);
         if (error?.status === 429) {
             return new Response(
-                "I'm receiving a lot of requests right now — please try again in a minute.",
+                "Too many requests — please try again in a minute.",
                 { status: 429 }
             );
         }

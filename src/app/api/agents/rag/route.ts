@@ -3,6 +3,7 @@ import { llm } from "@/lib/llm";
 import { retrieveResumeContext } from "@/lib/rag";
 import { NextRequest } from "next/server";
 import { auth } from "@/auth";
+import { getGapAnalysis } from "@/lib/redis";
 
 export async function POST(req: NextRequest) {
     const session = await auth();
@@ -25,16 +26,25 @@ export async function POST(req: NextRequest) {
     const queryText = query?.text || "";
 
     // Fetch relevant resume context for general questions
-    const resumeContext = await retrieveResumeContext(
-        queryText,
-        userId
-    );
+    const [resumeContext, gapAnalysis] = await Promise.all([
+        retrieveResumeContext(queryText, userId),
+        getGapAnalysis(userId),
+    ]);
 
     const resumeSection = resumeContext
         ? `CANDIDATE CONTEXT FROM RESUME:
        ${resumeContext}`
         : `RESUME: No resume uploaded yet.
        Answer generally without personal context.`;
+
+    const gapSection = gapAnalysis
+        ? `RESUME GAP ANALYSIS (from Resume Agent):
+        ${gapAnalysis}
+        Use this to:
+        - Prioritise advice around the candidate's known gaps
+        - Reference specific gaps when giving learning recommendations
+        - Avoid recommending skills they already have (listed as strengths)`
+        : `GAP ANALYSIS: Not available yet.`;
 
     const modelMessages = await convertToModelMessages(messages);
 
@@ -58,16 +68,17 @@ export async function POST(req: NextRequest) {
         - For technical questions — give concrete examples
         - For career questions — give honest, direct advice
     
-        ${resumeSection}`,
+        ${resumeSection}
+        ${gapSection}`,
             messages: modelMessages,
         });
 
         return result.toUIMessageStreamResponse();
     } catch (error: any) {
-        console.error("Offer agent error:", error);
+        console.error("RAG agent error:", error);
         if (error?.status === 429) {
             return new Response(
-                "I'm receiving a lot of requests right now — please try again in a minute.",
+                "Too many requests — please try again in a minute.",
                 { status: 429 }
             );
         }

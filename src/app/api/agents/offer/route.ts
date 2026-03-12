@@ -3,6 +3,7 @@ import { llm } from "@/lib/llm";
 import { retrieveResumeContext } from "@/lib/rag";
 import { NextRequest } from "next/server";
 import { auth } from "@/auth";
+import { getGapAnalysis } from "@/lib/redis";
 
 export async function POST(request: NextRequest) {
     const session = await auth();
@@ -26,10 +27,11 @@ export async function POST(request: NextRequest) {
         ? `${queryText} ${offerText}`.slice(0, 500)
         : queryText;
 
-    const resumeContext = await retrieveResumeContext(
-        ragQuery,
-        userId
-    );
+    // Fetch resume context AND gap analysis in parallel
+    const [resumeContext, gapAnalysis] = await Promise.all([
+        retrieveResumeContext(ragQuery, userId),
+        getGapAnalysis(userId),
+    ]);
 
     // Source 2 — offer text injected directly
     const offerSection = offerText
@@ -45,6 +47,18 @@ export async function POST(request: NextRequest) {
         : `RESUME STATUS: No resume uploaded yet.
        Ask the user to upload their resume first for personalised analysis.
        Do not fabricate any experience.`;
+
+    // ← Agent-to-agent: gap analysis enriches dimension 8
+    const gapSection = gapAnalysis
+        ? `RESUME GAP ANALYSIS (from Resume Agent):
+        ${gapAnalysis}
+        Use this for Dimension 8 (Personal Fit):
+        - Cross-reference offer's tech stack with candidate GAPS
+        - If offer requires skills in the GAP list → flag as risk
+        - If offer's stack matches candidate STRENGTHS → flag as positive
+        - Be specific: "Your gap analysis shows weak Docker skills — this role requires Docker expertise"
+        - Give concrete reskilling timeline if gaps are significant`
+        : `GAP ANALYSIS: Not available. Assess personal fit from resume context only.`;
 
     const taskSection = offerText
         ? `YOUR TASKS:
@@ -179,11 +193,9 @@ export async function POST(request: NextRequest) {
                 - Never fabricate salary data, visa rules, or company info
                 - If data is missing from offer — say "not mentioned"
                 - Be honest about red flags — the candidate's career depends on it
-
                 ${resumeSection}
-
                 ${offerSection}
-
+                ${gapSection}
                 ${taskSection}`,
             messages: modelMessages,
         });
@@ -192,7 +204,7 @@ export async function POST(request: NextRequest) {
         console.error("Offer agent error:", error);
         if (error?.status === 429) {
             return new Response(
-                "I'm receiving a lot of requests right now — please try again in a minute.",
+                "Too many requests — please try again in a minute.",
                 { status: 429 }
             );
         }
